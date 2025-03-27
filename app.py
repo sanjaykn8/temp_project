@@ -1,55 +1,89 @@
-from flask import Flask, render_template, request
-import pandas as pd
-import joblib
-import numpy as np
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+import sqlite3
+import os
 
 app = Flask(__name__)
+app.secret_key = "supersecretkey"  # Required for session handling
 
-# Load the trained model and encoders
-model = joblib.load("final_model.pkl")
-scaler = joblib.load("scaler.pkl")  # Load fitted MinMaxScaler
-encoder_education = joblib.load("encoder_education.pkl")  # LabelEncoder for Education Level
-encoder_course = joblib.load("encoder_course.pkl")  # LabelEncoder for Course Name
+# Database setup
+DB_PATH = "database.db"
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    prediction = None
+def create_database():
+    """Initialize database and create users table if not exists."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        email TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL)''')
+    conn.commit()
+    conn.close()
 
-    if request.method == "POST":
+create_database()  # Ensure DB is created when app starts
+
+
+# **HOME PAGE (Only accessible after login)**
+@app.route('/')
+def home():
+    if "user" in session:
+        return render_template('index.html')  # Load main page
+    else:
+        flash("Please login first!", "warning")
+        return redirect(url_for('login'))
+
+
+# **LOGIN PAGE**
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, password))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            session['user'] = email  # Store user session
+            flash("Login successful!", "success")
+            return redirect(url_for('home'))  # Redirect to main page
+        else:
+            flash("Invalid email or password. Try again.", "danger")
+
+    return render_template('login.html')
+
+
+# **REGISTER PAGE**
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
         try:
-            # Get form data
-            age = int(request.form["age"])
-            education_level = request.form["education_level"]
-            course_name = request.form["course_name"]
-            time_spent = float(request.form["time_spent"])
-            quiz_score = float(request.form["quiz_score"])
-            final_exam_score = float(request.form["final_exam_score"])
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, password))
+            conn.commit()
+            conn.close()
 
-            # Encode categorical variables (use the same encoder from training)
-            education_level_encoded = encoder_education.transform([education_level])[0]
-            course_name_encoded = encoder_course.transform([course_name])[0]
+            flash("Registration successful! Please login.", "success")
+            return redirect(url_for('login'))
+        except sqlite3.IntegrityError:
+            flash("Email already exists. Try a different one.", "danger")
 
-            # Scale time spent (use the already fitted MinMaxScaler)
-            scaled_time_spent = scaler.transform(np.array([[time_spent]]))[0][0]
+    return render_template('register.html')
 
-            # Compute efficiency score (matching training logic)
-            efficiency_score = (0.4 * final_exam_score) + (0.4 * quiz_score) + (0.2 * scaled_time_spent * 100)
 
-            # Create DataFrame for model input
-            input_data = pd.DataFrame([[age, education_level_encoded, course_name_encoded, time_spent, quiz_score, final_exam_score]],
-                                      columns=['Age', 'Education_Level', 'Course_Name', 'Time_Spent_on_Videos', 'Quiz_Scores', 'Final_Exam_Score'])
+# **LOGOUT**
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    flash("You have been logged out.", "info")
+    return redirect(url_for('login'))
 
-            # Predict proficiency level
-            prediction_encoded = model.predict(input_data)[0]
 
-            # Convert prediction back to category (beginner, intermediate, advanced)
-            proficiency_labels = ["beginner", "intermediate", "advanced"]
-            prediction = proficiency_labels[prediction_encoded]
-
-        except Exception as e:
-            prediction = f"Error: {e}"
-
-    return render_template("index.html", prediction=prediction)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
