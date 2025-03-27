@@ -8,52 +8,59 @@
 </head>
 <body>
 
-    <div class="container">
-        <h2>Proficiency Prediction</h2>
-        <form method="POST">
-            
-            <div class="form-group">
-                <label for="age">Age:</label>
-                <input type="number" id="age" name="age" required>
-            </div>
+<div class="container">
+    <h2>Proficiency Prediction</h2>
+    <form method="POST">
 
-            <div class="form-group">
-                <label for="education_level">Education Level:</label>
-                <select id="education_level" name="education_level" required>
-                    <option value="" disabled selected>Select Education Level</option>
-                    <option value="High School">High School</option>
-                    <option value="Undergraduate">Undergraduate</option>
-                    <option value="Postgraduate">Postgraduate</option>
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+        </div>
 
-            <div class="form-group">
-                <label for="course_name">Course Name:</label>
-                <input type="text" id="course_name" name="course_name" required>
-            </div>
+        <div class="form-group">
+            <label for="education_level">Education Level:</label>
+            <select id="education_level" name="education_level" required>
+                <option value="" disabled selected>Select Education Level</option>
+                <option value="High School">High School</option>
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Postgraduate">Postgraduate</option>
+            </select>
+        </div>
 
-            <div class="form-group">
-                <label for="time_spent">Time Spent on Videos (hours):</label>
-                <input type="number" id="time_spent" step="0.1" name="time_spent" required>
-            </div>
+        <div class="form-group">
+            <label for="course_name">Course Name:</label>
+            <select id="course_name" name="course_name" required>
+                <option value="" disabled selected>Select a Course</option>
+                <option value="Machine Learning">Machine Learning</option>
+                <option value="Python Basics">Python Basics</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Web Development">Web Development</option>
+            </select>
+        </div>
 
-            <div class="form-group">
-                <label for="quiz_score">Quiz Score:</label>
-                <input type="number" id="quiz_score" step="0.1" name="quiz_score" required>
-            </div>
+        <div class="form-group">
+            <label for="time_spent">Time Spent on Videos (hours):</label>
+            <input type="number" id="time_spent" step="0.1" name="time_spent" required>
+        </div>
 
-            <div class="form-group">
-                <label for="final_exam_score">Final Exam Score:</label>
-                <input type="number" id="final_exam_score" step="0.1" name="final_exam_score" required>
-            </div>
+        <div class="form-group">
+            <label for="quiz_score">Quiz Score:</label>
+            <input type="number" id="quiz_score" step="0.1" name="quiz_score" required>
+        </div>
 
-            <button type="submit">Predict</button>
-        </form>
+        <div class="form-group">
+            <label for="final_exam_score">Final Exam Score:</label>
+            <input type="number" id="final_exam_score" step="0.1" name="final_exam_score" required>
+        </div>
 
-        {% if prediction is not none %}
-            <p class="result">Predicted Proficiency Level: <strong>{{ prediction }}</strong></p>
-        {% endif %}
-    </div>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction is not none %}
+        <p class="result">Predicted Proficiency Level: <strong>{{ prediction }}</strong></p>
+    {% endif %}
+</div>
 
 </body>
 </html>
