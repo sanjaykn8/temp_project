@@ -21,38 +21,45 @@ def create_database():
 
 create_database()  # Ensure DB is created when app starts
 
-
 # **HOME PAGE (Only accessible after login)**
 @app.route('/')
 def home():
     if "user" in session:
+        print("✅ User is logged in:", session["user"])  # Debugging
         return render_template('index.html')  # Load main page
     else:
-        flash("Please login first!", "warning")
+        flash("⚠️ Please login first!", "warning")
+        print("🔴 No user found in session")  # Debugging
         return redirect(url_for('login'))
 
 
 # **LOGIN PAGE**
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
+    if "user" in session:
+        print("🔄 Redirecting to home because user is already logged in")  # Debugging
+        return redirect(url_for("home"))  # Redirect if already logged in
 
+    if request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+        
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, password))
+        cursor.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
         user = cursor.fetchone()
         conn.close()
 
         if user:
-            session['user'] = email  # Store user session
-            flash("Login successful!", "success")
-            return redirect(url_for('home'))  # Redirect to main page
+            session["user"] = email  # Set session
+            flash("✅ Login successful!", "success")
+            print("✅ Login successful, redirecting to home")  # Debugging
+            return redirect(url_for("home"))  
         else:
-            flash("Invalid email or password. Try again.", "danger")
+            flash("❌ Invalid credentials. Try again.", "danger")
+            print("❌ Invalid login attempt")  # Debugging
 
-    return render_template('login.html')
+    return render_template("login.html")
 
 
 # **REGISTER PAGE**
@@ -69,10 +76,12 @@ def register():
             conn.commit()
             conn.close()
 
-            flash("Registration successful! Please login.", "success")
+            flash("✅ Registration successful! Please login.", "success")
+            print("✅ Registration successful")  # Debugging
             return redirect(url_for('login'))
         except sqlite3.IntegrityError:
-            flash("Email already exists. Try a different one.", "danger")
+            flash("⚠️ Email already exists. Try a different one.", "danger")
+            print("⚠️ Email already exists")  # Debugging
 
     return render_template('register.html')
 
@@ -81,7 +90,8 @@ def register():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
-    flash("You have been logged out.", "info")
+    flash("ℹ️ You have been logged out.", "info")
+    print("🔴 User logged out, session cleared")  # Debugging
     return redirect(url_for('login'))
 
 
