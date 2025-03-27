@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .welcome-header {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+        .progress-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .badge-advanced {
+            background-color: #28a745;
+        }
+        .badge-intermediate {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .badge-beginner {
+            background-color: #007bff;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="progress-card card shadow">
+                    <div class="card-body p-4">
+                        <h1 class="welcome-header text-center">
+                            <i class="bi bi-person-circle me-2"></i>{{ welcome_message }}
+                        </h1>
+                        <h3 class="text-center mb-4">Your Learning Progress</h3>
+                        
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        
+                        {% if progress %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th><i class="bi bi-book me-2"></i>Course</th>
+                                        <th><i class="bi bi-bar-chart me-2"></i>Level</th>
+                                        <th><i class="bi bi-award me-2"></i>Proficiency</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for course, level, proficiency in progress %}
+                                    <tr>
+                                        <td>{{ course }}</td>
+                                        <td>{{ level }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if proficiency == 'Advanced' %}badge-advanced
+                                                {% elif proficiency == 'Intermediate' %}badge-intermediate
+                                                {% else %}badge-beginner{% endif %}">
+                                                {{ proficiency }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            No progress records yet. Complete an assessment to see your results.
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('select_course') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Take Another Course
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
