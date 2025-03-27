@@ -1,7 +1,7 @@
 /* General Styling */
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f4f4f9;
+    background: linear-gradient(135deg, #74EBD5, #ACB6E5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,6 +16,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     width: 450px;
+    text-align: center;
 }
 
 /* Heading */
@@ -24,6 +25,12 @@ h2 {
     color: #333;
     text-align: center;
 }
+
+/* Flash Messages */
+.success { color: green; }
+.warning { color: orange; }
+.danger { color: red; }
+.info { color: blue; }
 
 /* Form */
 form {
@@ -51,7 +58,7 @@ label {
 /* Input Fields & Select */
 input, select {
     flex: 2;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 14px;
@@ -82,6 +89,17 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+/* Links */
+p a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+p a:hover {
+    text-decoration: underline;
 }
 
 /* Prediction Result */
